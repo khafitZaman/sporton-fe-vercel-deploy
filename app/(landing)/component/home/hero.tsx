@@ -11,7 +11,7 @@ const HeroSection =  () => {
           <div className="text-primary italic">
             Friday Sale, 50%
           </div>
-          <h1 className="font-extrabold text-[95px] italic leading-tight bg-gradient-to-b from-black to-[#979797] bg-clip-text text-transparent">
+          <h1 className="font-extrabold text-[95px] italic leading-tight bg-linear-to-b from-black to-[#979797] bg-clip-text text-transparent">
             WEAR YOUR <br />
             TOP-QUALITY <br />
             SPORTSWEAR
@@ -29,9 +29,9 @@ const HeroSection =  () => {
             </Button>
           </div>
         </div>
-        <Image src="/images/img-hero.svg" width={623} height={688} alt="image sporton hero" className="absolute -right-24 top-1/2 -translate-y-3/5" />
+        <Image src="/images/img-hero.svg" width={623} height={688} alt="image sporton hero" className="absolute -right-24 top-1/2 -translate-y-3/5 -z-10" />
       </div>
-      <Image src="/images/img-ornament-hero.svg" width={180} height={180} alt="Image sportOn" className="absolute right-0 top-1/2 -translate-y-1/2"/>
+      <Image src="/images/img-ornament-hero.svg" width={180} height={180} alt="Image sportOn" className="absolute right-0 top-1/2 -translate-y-1/2 -z-20"/>
     </section>
   );
 }
