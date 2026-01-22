@@ -1,49 +1,14 @@
-export const cartList = [
-  {
-    name: "Product 1",
-    category: "Running",
-    price: 329000,
-    imgUrl: "product-1.svg",
-    qty: 5,
-  },
-  {
-    name: "Product 2",
-    category: "Running",
-    price: 999000,
-    imgUrl: "product-2.svg",
-    qty: 5,
-  },
-  {
-    name: "Product 3",
-    category: "Running",
-    price: 119000,
-    imgUrl: "product-3.svg",
-    qty: 5,
-  },
-  {
-    name: "Product 4",
-    category: "Running",
-    price: 119000,
-    imgUrl: "product-4.svg",
-    qty: 5,
-  },
-  {
-    name: "Product 5",
-    category: "Running",
-    price: 119000,
-    imgUrl: "product-5.svg",
-    qty: 5,
-  }
-];
-
 import priceFormatter from "@/app/utils/price-formatter";
 import Image from "next/image";
 import Button from "./button";
 import { FiArrowRight, FiTrash2 } from "react-icons/fi";
 import { useRouter } from "next/navigation";
+import { useCartStore } from "@/app/hooks/use-cart-store";
+import { getImageUrl } from "@/app/lib/api";
 
 const CartPopup = () => {
-  const totalPrice = cartList.reduce((total, item) => total + item.price * item.qty, 0);
+  const {items, removeItem} = useCartStore();
+  const totalPrice = items.reduce((total, item) => total + item.price * item.qty, 0);
   const {push} = useRouter();
   const handleCheckout = () => {
     push("/checkout");
@@ -54,11 +19,11 @@ const CartPopup = () => {
         Shopping Cart
       </div>
       <div className="overflow-auto max-h-70">
-        {
-          cartList.map((item, index) => (
+        {items.length ? 
+          items.map((item, index) => (
             <div className="border-b border-gray-200 p-4 flex gap-3" key={index}>
               <div className="bg-primary-light aspect-square w-16 flex justify-center items-center">
-                <Image src={`/images/products/${item.imgUrl}`} width={63} height={63} alt={item.name} className="aspect-square object-contain" />
+                <Image src={getImageUrl(item.imageUrl)} width={63} height={63} alt={item.name} className="aspect-square object-contain" />
               </div>
               <div className="self-center">
                 <div className="text-sm font-medium">{item.name}</div>
@@ -69,9 +34,10 @@ const CartPopup = () => {
                   </div>
                 </div>
               </div>
-              <Button size="small" variant="ghost" className="w-7 h-7 p-0! self-center ml-auto"><FiTrash2 /></Button>
+              <Button size="small" variant="ghost" className="w-7 h-7 p-0! self-center ml-auto" onClick={()=>removeItem(item._id)}><FiTrash2 /></Button>
             </div>
-          ))
+          )) : 
+          <div className="text-center py-5 opacity-50">Your Shopping Cart is empty</div>
         }
       </div>
       <div className="border-t border-gray-200 p-4">

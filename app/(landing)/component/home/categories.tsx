@@ -1,35 +1,14 @@
 import { FiArrowRight } from "react-icons/fi";
 import Image from "next/image";
 import Link from "next/link";
+import { Category } from "@/app/types";
+import { getImageUrl } from "@/app/lib/api";
 
-const categoryList = [
-  {
-    name: "Running",
-    imgUrl: "/category-running.svg"
-  },
-  {
-    name: "Tennis",
-    imgUrl: "/category-tennis.svg"
-  },
-  {
-    name: "Basketball",
-    imgUrl: "/category-basketball.svg"
-  },
-  {
-    name: "Football",
-    imgUrl: "/category-football.svg"
-  },
-  {
-    name: "Badminton",
-    imgUrl: "/category-badminton.svg"
-  },
-  {
-    name: "Swimming",
-    imgUrl: "/category-swimming.svg"
-  }
-]
+type TCategoriesProps = {
+  categories: Category[];
+}
 
-const CategoriesSection =  () => {
+const CategoriesSection =  ({categories}: TCategoriesProps) => {
   return (
     <section id="categories-section" className="container mx-auto p-20">
       <div className="flex justify-between">
@@ -43,10 +22,10 @@ const CategoriesSection =  () => {
       </div>
       <div className="grid grid-cols-6 gap-12 mt-8">
         {
-          categoryList.map((category, index) => (
-            <div className="rounded-lg bg-gradient-to-r from-[#F1F1F1] to-[#F7F7F7] w-full aspect-square flex justify-center" key={index}>
+          categories.map((category) => (
+            <div className="rounded-lg bg-linear-to-r from-[#F1F1F1] to-[#F7F7F7] w-full aspect-square flex justify-center" key={category._id}>
               <div className="self-center">
-                <Image src={`/images/categories/${category.imgUrl}`} width ={86} height={86} alt="" className="mb-2.5" />
+                <Image src={getImageUrl(category.imageUrl)} width ={86} height={86} alt="" className="mb-2.5" />
                 <div className="text-primary font-medium text-xl text-center">
                   {category.name}
                 </div>
