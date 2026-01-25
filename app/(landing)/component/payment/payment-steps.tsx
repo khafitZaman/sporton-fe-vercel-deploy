@@ -49,7 +49,7 @@ const PaymentSteps = () => {
       <div className="p-5">
         <ol className="list-decimal text-xs pl-2 flex flex-col gap-4 mb-5">
           <li>
-            Transfer the total amount of <strong>Rp. 1.035.000</strong> to your preferred bank account listed under &lsquo;Payment Options&rsquo; (BCA, Mandiri, or BTPN).
+            Transfer the total amount of <strong>{priceFormatter(totalPrice)}</strong> to your preferred bank account listed under &lsquo;Payment Options&rsquo; (BCA, Mandiri, or BTPN).
           </li>
           <li>
             After completing the transfer, <strong>keep the payment receipt</strong> or a screenshot of the transfer confirmation. This will be needed for the next step.
