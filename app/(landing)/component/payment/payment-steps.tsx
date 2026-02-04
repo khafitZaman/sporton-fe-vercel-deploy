@@ -33,7 +33,7 @@ const PaymentSteps = () => {
       formData.append("customerContact", customerInfo.customerContact!.toString());
       formData.append("customerAddress", customerInfo.customerAddress);
       formData.append("image", file);
-      formData.append("purchasedItem", JSON.stringify(items.map((item) => ({productId: item._id, qty: item.qty}))));
+      formData.append("purchasedItems", JSON.stringify(items.map((item) => ({productId: item._id, qty: item.qty}))));
       formData.append("totalPayment", totalPrice!.toString());
 
       const res = await transactionCheckout(formData);

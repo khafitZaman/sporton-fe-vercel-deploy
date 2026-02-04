@@ -4,61 +4,107 @@ import Modal from "../ui/modal";
 import Image from "next/image";
 import priceFormatter from "@/app/utils/price-formatter";
 import { FiCheck, FiX } from "react-icons/fi";
+import { Transaction } from "@/app/types";
+import { useState } from "react";
+import { getImageUrl } from "@/app/lib/api";
 
 type TTransactionModalProps = {
   isOpen: boolean;
   onClose: () => void;
+  transaction: Transaction | null;
+  onStatusChange: (id: string, status: "paid" | "rejected")=>Promise<void>;
 }
 
-const TransactionModal = ({isOpen, onClose}: TTransactionModalProps) => {
+const TransactionModal = ({isOpen, onClose, transaction, onStatusChange }: TTransactionModalProps) => {
+  const [isUpdating, setIsUpdating] = useState(false);
+  if(!transaction) return;
+  const handleStatusUpdate = async (status: "paid"  | "rejected") => {
+    setIsUpdating(true);
+    try{
+      await onStatusChange(transaction._id, status);
+    }catch(e){
+      console.error(e);
+    }finally{
+      setIsUpdating(false);
+    }
+  } 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Verify Transaction">
       <div className="flex gap-6">
-        <div>
+        <div className="w-min-50">
           <h4 className="font-semibold text-xs mb-2">Payment Proof</h4>
-          <Image src="/images/payment-proof.png" alt="payment proof" width={200} height={40} />
+          {
+            transaction.paymentProof ? (
+              <Image src={getImageUrl(transaction.paymentProof)} alt="payment proof" width={200} height={400} />
+            ) : (
+              <div className="text-center p-4">
+                <p className="text-sm">No Payment proof uploaded</p>
+              </div>
+            )
+          }
         </div>
-        <div>
+        <div className="w-full">
           <h4>Order Detail</h4>
           <div className="bg-gray-100 rounded-md p-4 flex flex-col gap-2.5 text-sm mb-5">
             <div className="flex justify-between font-medium ">
               <div className="opacity-50">Date</div>
-              <div className="text-right">2026-01-25</div>
+              <div className="text-right">{
+              new Date(transaction.createdAt).toLocaleDateString("id-ID", {
+                  day: "numeric",
+                  month: "short",
+                  year: "numeric",
+                  hour: '2-digit',
+                  minute: '2-digit'
+                })}</div>
             </div>
             <div className="flex justify-between font-medium">
               <div className="opacity-50">Customer</div>
-              <div className="text-right">John Doe</div>
+              <div className="text-right">{transaction.customerName}</div>
             </div>
             <div className="flex justify-between font-medium">
               <div className="opacity-50">Contact</div>
-              <div className="text-right">081</div>
+              <div className="text-right">{transaction.customerContact}</div>
             </div>
             <div className="flex justify-between font-medium gap-10">
               <div className="opacity-50 whitespace-nowrap">Shipping Address</div>
-              <div className="text-right">Merdeka Street, Jakarta, Indonesia, 332122</div>
+              <div className="text-right">{transaction.customerAddress}</div>
             </div>
           </div>
           <h4 className="font-semibold text-xs mb-2">Items Purchased</h4>
-          <div className="border border-gray-200 rounded-lg p-2 flex gap-2 items-center">
-            <div className="bg-gray-100 rounded aspect-square w-8 h-8">
-              <Image src={"/images/products/product-1.svg"} alt="Product Image" width={30} height={30} />
-            </div>
-            <div className="font-medium text-xs">Sporton T-shirt</div>
-            <div className="font-medium ml-auto text-xs">3 Units</div>
+          <div className="space-y-3">
+          {
+            transaction.purchasedItems.map((item, index)=>(
+              <div className="border border-gray-200 rounded-lg p-2 flex gap-2 items-center" key={index}>
+                <div className="bg-gray-100 rounded aspect-square w-8 h-8">
+                  <Image src={getImageUrl(item.productId.imageUrl)} alt="Product Image" width={30} height={30} />
+                </div>
+                <div className="font-medium text-xs">{item.productId.name}</div>
+                <div className="font-medium ml-auto text-xs">{item.qty} units</div>
+              </div>
+            ))
+          }
           </div>
           <div className="flex justify-between text-xs mt-6">
             <h4 className="font-semibold">Total</h4>
-            <div className="text-primary font-semibold">{priceFormatter(4000000)}</div>
+            <div className="text-primary font-semibold">{priceFormatter(parseInt(transaction.totalPayment))}</div>
           </div>
           <div className="mt-10 flex justify-end gap-5">
-            <Button className="text-primary! bg-primary-light! rounded-md" size="small">
-              <FiX size={20} />
-              Reject
-            </Button>
-            <Button className="text-white! bg-[#50C252]! rounded-md" size="small">
-              <FiCheck size={20} />
-              Approve
-            </Button>
+            {
+              isUpdating ? (
+                <div className="text-center">Updating...</div>
+              ):(
+                <>
+                  <Button className="text-primary! bg-primary-light! rounded-md" size="small" disabled={isUpdating} onClick={()=>handleStatusUpdate("rejected")}>
+                    <FiX size={20} />
+                    Reject
+                  </Button>
+                  <Button className="text-white! bg-[#50C252]! rounded-md" size="small" disabled={isUpdating} onClick={()=>handleStatusUpdate("paid")}>
+                    <FiCheck size={20} />
+                    Approve
+                  </Button>
+                </>
+              )
+            }
           </div>
         </div>
       </div>

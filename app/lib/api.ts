@@ -13,7 +13,7 @@ export async function fetchAPI<T> (
       const errorData = await res.json();
       errorMessage = errorData.message || errorData.error || errorMessage;
     }catch (e) {
-      console.log(e);
+     console.log(e);
     }
 
     throw new Error(errorMessage);
@@ -25,4 +25,11 @@ export async function fetchAPI<T> (
 export function getImageUrl(path: string){
    if(path.startsWith("http")) return path;
    return `${process.env.NEXT_PUBLIC_API_ROOT}/${path}`;
+}
+
+export function getAuthHeaders() {
+  const token = localStorage.getItem("token");
+  return {
+    Authorization: `Bearer ${token}`,
+  }
 }

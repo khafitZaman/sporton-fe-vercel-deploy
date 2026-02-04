@@ -2,19 +2,92 @@
 import Button from "@/app/(landing)/component/ui/button";
 import Modal from "../ui/modal";
 import ImageUploadPreview from "../ui/image-upload-preview";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { Category } from "@/app/types";
+import { getImageUrl } from "@/app/lib/api";
+import { createCategory, updateCategory } from "@/app/services/category.services";
+import { toast } from "react-toastify";
 
 type TCategoriesModalProps = {
   isOpen: boolean;
   onClose: () => void;
+  category?: Category | null;
+  onSuccess: () => void;
 }
 
-const CategoriesModal = ({isOpen, onClose}: TCategoriesModalProps) => {
+type CategoryFormData = {
+  name: string;
+  description: string;
+}
+
+const CategoriesModal = ({isOpen, onClose, category, onSuccess}: TCategoriesModalProps) => {
   const [image, setImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string|null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formData, setFormData] = useState<CategoryFormData>({
+    name: "",
+    description: ""
+  });
+
+  const isEditMode = !!category;
+
+  useEffect(()=>{
+    if(isEditMode && isOpen){
+      setFormData({
+        name: category.name,
+        description: category.description
+      });
+      setImagePreview(category.imageUrl ? getImageUrl(category.imageUrl) : null);
+    }else if (isOpen){
+      setFormData({
+        name: "",
+        description: ""
+      })
+      setImagePreview(null);
+    }
+  },[category, isOpen])
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const {id, value} = e.target;
+    setFormData((prev) => ({...prev, [id]: value}));
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    try{
+      const data = new FormData();
+      data.append("name", formData.name);
+      data.append("description", formData.description);
+      if(image){
+        data.append("image", image);
+      }
+      if(isEditMode){
+        await updateCategory(category._id, data);
+      }else{
+        await createCategory(data);
+      }
+      toast.success(isEditMode ? "Category updated successfully" : "Category created successfully");
+
+      setFormData({
+        name: "",
+        description: ""
+      })
+      setImage(null);
+      setImagePreview(null);
+
+      onSuccess?.();
+      onClose();
+    }catch(e){
+      console.error(isEditMode?"Failed to Update Category":"Failed to Create Category", e);
+      toast.error(isEditMode?"Failed to Update Category":"Failed to Create Category");
+    }finally{
+      setIsSubmitting(false);
+    }
+  }
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Add New Category">
-      <div className="flex flex-col gap-6">
+    <Modal isOpen={isOpen} onClose={onClose} title={isEditMode?"Edit Category":"Add New Category"}>
+      <form onSubmit={handleSubmit} className="flex flex-col gap-6">
         <div className="flex gap-7">
           <div className="min-w-50"><ImageUploadPreview label="Category Image" value={imagePreview} 
             onChange={
@@ -26,17 +99,17 @@ const CategoriesModal = ({isOpen, onClose}: TCategoriesModalProps) => {
           </div>
           <div className="flex flex-col gap-4 w-full">
             <div className="input-group-admin">
-              <label htmlFor="categoryName">Name</label>
-              <input type="text" id="categoryName" name="categoryName" placeholder="e. g. Category" />
+              <label htmlFor="name">Name</label>
+              <input type="text" id="name" name="name" placeholder="e. g. Category" value={formData.name} onChange={handleChange} />
             </div>
             <div className="input-group-admin">
               <label htmlFor="description">Description</label>
-              <textarea id="description" name="description" placeholder="Category Detail" rows={7}></textarea>
+              <textarea id="description" name="description" placeholder="Category Detail" rows={7} value={formData.description} onChange={handleChange}></textarea>
             </div>
           </div>
         </div>
-        <Button className="ml-auto rounded-lg" >Create Category</Button>
-      </div>
+        <Button className="ml-auto rounded-lg" disabled={isSubmitting} type="submit" onClick={handleSubmit}>{isEditMode?"Edit":"Create"} Category</Button>
+      </form>
     </Modal>
   )
 }

@@ -24,16 +24,16 @@ html {
 }
 
 /* User */
-.input-group-admin{
+.input-group{
   @apply mb-5;
 }
 
-.input-group-admin label {
+.input-group label {
   @apply block text-xs mb-1 font-medium;
 }
 
-.input-group-admin input,
-.input-group-admin textarea{
+.input-group input,
+.input-group textarea{
   @apply px-4 py-2.5 bg-gray-100 w-full focus:border focus:border-gray-400 outline-none text-sm;
 }
 
