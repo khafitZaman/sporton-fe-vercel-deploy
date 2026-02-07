@@ -5,7 +5,7 @@ import Image from "next/image";
 const HeroSection =  () => {
   return (
     <section id="hero-section" className="container mx-auto h-screen flex">
-      <div className="relative self-center">
+      <div className="relative self-center mt-63">
         <Image src="/images/img-basketball-transparent.svg" width={632} height={632} alt="Image sportOn" className="absolute -left-30 -top-10 grayscale"/>
         <div className="relative ml-40 w-full">
           <div className="text-primary italic">
